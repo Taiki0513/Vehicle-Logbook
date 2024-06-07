@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>microCMS Data Tables</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2"></script>
+    <script src="https://unpkg.com/microcms-js-sdk@latest/dist/umd/microcms-js-sdk.js"></script>
+    <style>
+        *{
+            font-size: 12px;
+        }
+        table,th,td{
+          border: 1px solid black;
+          border-collapse: collapse;
+        }
+        th{
+          padding: 5px;
+        }
+        .table-area{
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+
+<div id="app">
+    <p style="font-size: larger;">※PC版はシステムデータの参照のみ可能です</p>
+    <!--<data-table :data="vehicles" :columns="vehiclesHeaderTitles" table-title="Vehicles"></data-table>-->
+    <data-table :data="items" :columns="itemsHeaderTitles" table-title="Items"></data-table>
+    <data-table :data="logs" :columns="logsHeaderTitles" table-title="Logs"></data-table>
+</div>
+
+<script>
+Vue.component('data-table', {
+  props: ['data', 'columns', 'tableTitle'],
+  template: `
+    <div class="table-area">
+      <h2>{{ tableTitle }}</h2>
+      <table>
+        <thead>
+          <tr>
+            <th v-for="column in columns" :key="column">{{ column }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="item in data" :key="item.id">
+            <td v-for="(value, key) in item" :key="key">{{ value }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  `
+});
+
+new Vue({
+  el: '#app',
+  data: {
+    itemsHeaderTitles: [],
+    items: [],
+    logs: [],
+    logsHeaderTitles: [],
+    vehiclesHeaderTitles: [],
+    vehicles: []
+  },
+  methods: {
+    async fetchData(endpoint, setData, setHeaderTitles) {
+      const client = microcms.createClient({
+        serviceDomain: 'taiki6134', 
+        apiKey: 'pXftWgjkaejG6wGDAtuzXxY9vqQtZPEK3Rgq', 
+      });
+      const res = await client.getAllContents({ endpoint });
+      const data = res.map(this.transformData);
+      setData(data);
+      if(data.length > 0) {
+        setHeaderTitles(Object.keys(data[0]));
+      }
+    },
+    transformData(content) {
+      if(content.date) {
+        const dateTime = new Date(content.date);
+        content.date = `${dateTime.getFullYear()}/${String(dateTime.getMonth() + 1).padStart(2, '0')}/${String(dateTime.getDate()).padStart(2, '0')}`;
+      }
+      return content;
+    },
+    setvehicles(data) { this.vehicles = data; },
+    setItems(data) { this.items = data; },
+    setLogs(data) { this.logs = data; },
+    setvehiclesHeaderTitles(columns) { this.vehiclesHeaderTitles = columns; },
+    setItemsHeaderTitles(columns) { this.itemsHeaderTitles = columns; },
+    setLogsHeaderTitles(columns) { this.logsHeaderTitles = columns; },
+    async updateData() {
+      await Promise.all([
+        this.fetchData('vehicles', this.setvehicles, this.setvehiclesHeaderTitles),
+        this.fetchData('mainte_items', this.setItems, this.setItemsHeaderTitles),
+        this.fetchData('logs', this.setLogs, this.setLogsHeaderTitles)
+      ]);
+      //setTimeout(this.updateData, 3000);
+    }
+  },
+  mounted() {
+    //スマホサイズリダイレクト
+    if (window.innerWidth <= 1024) window.location.href = 'index.html'
+    this.updateData();
+  },
+});
+</script>
+
+</body>
+</html>
