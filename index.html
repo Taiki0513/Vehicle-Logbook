@@ -432,34 +432,15 @@
                     });
                     return totalPrice;
                 },
-                itemsWithPassedDays(){
-                    const INCLUDE_START_DATE = false;
-
-                    let itemsWithPassedDays = [];
-                    this.selectOptions.forEach(option=>{
-                        let from = new Date(option.date);
-                        let to = new Date();
-
-                        if (INCLUDE_START_DATE) {
-                            // 初日を含める場合、開始日を前日に設定(from:2024/4/2 to:2024/04/02 → 1日経過)
-                            from.setDate(from.getDate() - 1);
-                        }
-
-                        let milliSec = to.getTime() - from.getTime();
-                        let elapsedDays = Math.floor(milliSec / (1000*60*60*24));
-
-                        // 警告表示日数を経過しているかチェック
-                        let hasAlertDaysPassed = false;
-                        this.maintenanceItems.forEach(item=>{
-                            if(item.name === option.name){
-                                if(item.thresholdDays !== 0 && item.thresholdDays < elapsedDays) hasAlertDaysPassed = true;
-                            }
-                        })
-                        itemsWithPassedDays.push({name: option.name, date:`${elapsedDays}日` ,hasAlertDaysPassed:hasAlertDaysPassed});
-                    })
-                    //全件表示(1レコード目)はシンプルに取り除く
-                    itemsWithPassedDays = itemsWithPassedDays.slice(1)
-                    return itemsWithPassedDays;
+                itemsWithPassedDays() {
+                    return this.selectOptions.slice(1).map(option => {
+                        const elapsedDaysInfo = this.calculateElapsedDays(option.date, option.name);
+                        return {
+                            name: option.name,
+                            date: `${elapsedDaysInfo.elapsedDays}日`,
+                            hasAlertDaysPassed: elapsedDaysInfo.hasAlertDaysPassed
+                        };
+                    });
                 }
             },
             watch: {
@@ -477,35 +458,46 @@
                 }
             },
             methods: {
-                showAlertIfPassed(){
+                calculateElapsedDays(startDate, name) {
                     const INCLUDE_START_DATE = false;
+
+                    let from = new Date(startDate);
+                    let to = new Date();
+
+                    if (INCLUDE_START_DATE) {
+                        // 初日を含める場合、開始日を前日に設定(from:2024/4/2 to:2024/04/02 → 1日経過)
+                        from.setDate(from.getDate() - 1);
+                    }
+
+                    let milliSec = to.getTime() - from.getTime();
+                    let elapsedDays = Math.floor(milliSec / (1000 * 60 * 60 * 24));
+
+                    // 警告表示日数を経過しているかチェック
+                    let hasAlertDaysPassed = false;
+                    this.maintenanceItems.forEach(item => {
+                        if (item.name === name) {
+                            if (item.thresholdDays !== 0 && item.thresholdDays < elapsedDays) {
+                                hasAlertDaysPassed = true;
+                            }
+                        }
+                    });
+
+                    return { elapsedDays, hasAlertDaysPassed };
+                },
+                showAlertIfPassed() {
                     let hasAlertDaysPassed = false;
 
-                    this.selectOptions.forEach(latestLog=>{
-                        let from = new Date(latestLog.date);
-                        let to = new Date();
-                        if (INCLUDE_START_DATE) {
-                            // 初日を含める場合、開始日を前日に設定(from:2024/4/2 to:2024/04/02 → 1日経過)
-                            from.setDate(from.getDate() - 1);
+                    this.selectOptions.forEach(option => {
+                        const elapsedDaysInfo = this.calculateElapsedDays(option.date, option.name);
+                        if (elapsedDaysInfo.hasAlertDaysPassed) {
+                            hasAlertDaysPassed = true;
                         }
+                    });
 
-                        let milliSec = to.getTime() - from.getTime();
-                        let elapsedDays = Math.floor(milliSec / (1000*60*60*24));
-
-                        // 警告表示日数を経過しているかチェック
-                        this.maintenanceItems.forEach(item=>{
-                            if(item.name === latestLog.name){
-                                //console.log(item.thresholdDays,elapsedDays)
-                                if(item.thresholdDays !== 0 && item.thresholdDays < elapsedDays) hasAlertDaysPassed = true;
-                            }
-                        })
-                    })
-
-                    if(hasAlertDaysPassed){
-                        this.notification = "警告日数超過項目があります。"
+                    if (hasAlertDaysPassed) {
+                        this.notification = "警告日数超過項目があります。";
                         this.showModal(this.NOTIFICATION_MODE);
                     }
-                    ////////////////////////////////////////////////////////////////////////
                 },
                 formatPrice(price){ return price.toLocaleString(); },
                 //モーダル表示処理///////////////////////////////////////////////////////////
