@@ -360,8 +360,12 @@
                 }
             },
             computed:{
-                reversedMaintenanceLogs(){
-                    return this.ordererdMaintenanceLogs.sort((a,b)=> b.id - a.id);
+                ordererdMaintenanceLogs(){
+                    return this.maintenanceLogs.toSorted((a,b)=>{
+                        const dateA = new Date(a.date);
+                        const dateB = new Date(b.date);
+                        return dateB - dateA;
+                    })
                 },
                 filteredMaintenanceLogs(){
                     let i = 0
@@ -399,13 +403,6 @@
                             }
                         };
                     });
-                },
-                ordererdMaintenanceLogs(){
-                    return this.maintenanceLogs.sort((a,b)=>{
-                        const dateA = new Date(a.date);
-                        const dateB = new Date(b.date);
-                        return dateB - dateA;
-                    })
                 },
                 selectOptions(){
                     let i = 1;
@@ -538,6 +535,7 @@
                                 this.inputThreshold = this.targetThreshold;
                             }
                             this.isModalVisible = true;
+                            console.log(this.modalStatus,this.isModalVisible)
                             break;
                         case this.DELETE_MODE:
                             this.getTargetData(id);
@@ -545,6 +543,7 @@
                             break;
                         case this.PASSEDDAYS_MODE:
                             this.isModalVisible = true;
+                            console.log(this.modalStatus,this.isModalVisible)
                             break;
                         case this.VEHICLE_MODE:
                             this.inputVName = this.vehicle.name;
