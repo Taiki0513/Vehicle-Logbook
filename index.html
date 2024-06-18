@@ -302,10 +302,10 @@
                     //車両
                     vehicles:[{}],//全車両
                     vehicle:"",
+                    vehicleId:1,//いずれ切り替えられるようにすること
                     // apiデータ格納変数・定数 //////////////
                     SERVICE_DOMAIN:"taiki6134",
                     API_KEY:"pXftWgjkaejG6wGDAtuzXxY9vqQtZPEK3Rgq",
-                    userId:1,//レガシー
                     user:[],
                     users:[],
                     nextMaintenanceItemsId:0,
@@ -800,7 +800,7 @@
                                 imageBase64: content.image_base64
                             });
                         });
-                        this.vehicle = this.vehicles[2]//一旦車両切替機能は無し
+                        this.vehicle=this.vehicles[2]//一旦車両切替機能は無し
                     });
                 },
                 setLogsToVar(){
@@ -824,7 +824,7 @@
 
                             if(parseFloat(content.id)>this.nextLogsId) this.nextLogsId = parseFloat(content.id)
                             
-                            if(content.user_id === this.userId){
+                            if(content.vehicle_id === this.vehicleId){
 
                                 switch(content.category_flg){
                                     case 1:
@@ -872,7 +872,7 @@
 
                             if(parseFloat(content.id) > this.nextMaintenanceItemsId) this.nextMaintenanceItemsId = parseFloat(content.id)
 
-                            if(content.user_id === this.userId){
+                            if(content.vehicle_id === this.vehicleId){
                                 this.maintenanceItems.push({
                                     id: parseFloat(content.id),
                                     name: content.name,
@@ -981,7 +981,7 @@
                         endpoint: 'logs',
                         contentId: this.FiveDigitsStrId,
                         content: JSON.parse(
-                                        '{"user_id":' + this.userId +
+                                        '{"vehicle_id":' + this.vehicleId +
                                         ',"category_flg":' + category_flg +
                                         ',"item":' + '"' + this.inputName + '"' + 
                                         ',"brand": ' + '"' + this.inputBrand + '"' +
@@ -997,7 +997,7 @@
                     }else{
                         this.inputThreshold = this.inputThreshold || 0;
                         content = JSON.parse(
-                                        '{"user_id":' + this.userId +
+                                        '{"vehicle_id":' + this.vehicleId +
                                         ',"name":' + '"' + this.inputName + '"' + 
                                         ',"alert_threshold_days":' + this.inputThreshold + '}'
                                         )
@@ -1017,8 +1017,8 @@
                     const { createClient } = microcms;
                     
                     const client = createClient({
-                        serviceDomain: this.SERVICE_DOMAIN,
-                        apiKey: this.API_KEY,
+                        serviceDomain: 'taiki6134',
+                        apiKey: 'pXftWgjkaejG6wGDAtuzXxY9vqQtZPEK3Rgq',
                     })
                     if(this.appStatus === this.MAINTENANCE || this.appStatus === this.CUSTOM){
                         client.delete({
