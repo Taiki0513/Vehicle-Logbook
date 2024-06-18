@@ -800,7 +800,7 @@
                                 imageBase64: content.image_base64
                             });
                         });
-                        this.vehicle=this.vehicles[2]//一旦車両切替機能は無し
+                        this.vehicle = this.vehicles[2]//一旦車両切替機能は無し
                     });
                 },
                 setLogsToVar(){
@@ -894,8 +894,8 @@
                     this.inputPrice = this.inputPrice || 0;
 
                     const client = createClient({
-                        serviceDomain: 'taiki6134',
-                        apiKey: 'pXftWgjkaejG6wGDAtuzXxY9vqQtZPEK3Rgq',
+                        serviceDomain: this.SERVICE_DOMAIN,
+                        apiKey: this.API_KEY,
                     })
                     if(this.appStatus !== this.SETTINGS){
                         client.update({
@@ -952,8 +952,8 @@
                     const { createClient } = microcms;
                     
                     const client = createClient({
-                        serviceDomain: 'taiki6134',
-                        apiKey: 'pXftWgjkaejG6wGDAtuzXxY9vqQtZPEK3Rgq',
+                        serviceDomain: this.SERVICE_DOMAIN,
+                        apiKey: this.API_KEY,
                     })
                     if(this.appStatus !== this.SETTINGS){
                         this.newRecId =  this.nextLogsId;
@@ -1017,8 +1017,8 @@
                     const { createClient } = microcms;
                     
                     const client = createClient({
-                        serviceDomain: 'taiki6134',
-                        apiKey: 'pXftWgjkaejG6wGDAtuzXxY9vqQtZPEK3Rgq',
+                        serviceDomain: this.SERVICE_DOMAIN,
+                        apiKey: this.API_KEY,
                     })
                     if(this.appStatus === this.MAINTENANCE || this.appStatus === this.CUSTOM){
                         client.delete({
